@@ -4,10 +4,11 @@ import requests
 
 from ..helper import filter_none
 from ..base_provider import AsyncGeneratorProvider, ProviderModelMixin, RaiseErrorMixin
-from ...typing import Union, AsyncResult, Messages
+from ...typing import Optional, Union, AsyncResult, Messages
 from ...requests import StreamSession
 from ...providers.response import JsonRequest
 from ...errors import MissingAuthError
+from ... import debug
 from .OpenaiTemplate import read_response
 
 
@@ -25,10 +26,11 @@ class OpenaiProxyTemplate(AsyncGeneratorProvider, ProviderModelMixin, RaiseError
     sort_models = True
     needs_auth = False
     ssl = None
-    max_tokens: int = None
+    max_tokens: Optional[int] = None
+    live = 0
 
     @classmethod
-    def get_models(cls, api_key: str = None, base_url: str = None, timeout: int = None) -> list[str]:
+    def get_models(cls, api_key: str = None, base_url: str = None, timeout: int = None) -> dict:
         if not cls.models:
             try:
                 api_key = api_key if api_key is not None else cls.api_key
@@ -48,11 +50,10 @@ class OpenaiProxyTemplate(AsyncGeneratorProvider, ProviderModelMixin, RaiseError
                     model.get("id", model.get("name")): {"id": model.get("id", model.get("name")), **model}
                     for model in data
                 }
-                if cls.sort_models and isinstance(cls.models, list):
-                    cls.models.sort()
-            except Exception:
+            except Exception as e:
                 if cls.fallback_models:
-                    return cls.fallback_models
+                    debug.error(e)
+                    return {model: {"id": model} for model in cls.fallback_models}
                 raise
         return cls.models
 
