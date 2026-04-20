@@ -11,6 +11,7 @@ from .Cohere            import Cohere
 from .CopilotAccount    import CopilotAccount
 from .Custom            import Custom
 from .Custom            import Feature
+from .Custom            import OpenaiProxy
 from .DeepSeek          import DeepSeek
 from .DeepSeekAPI       import DeepSeekAPI
 from .FenayAI           import FenayAI

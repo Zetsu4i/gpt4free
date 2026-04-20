@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..template import OpenaiTemplate
+from ..template import OpenaiTemplate, OpenaiProxyTemplate
 
 class Custom(OpenaiTemplate):
     label = "Custom Provider"
@@ -13,3 +13,11 @@ class Custom(OpenaiTemplate):
 class Feature(Custom):
     label = "Feature Provider"
     working = False
+
+
+class OpenaiProxy(OpenaiProxyTemplate):
+    label = "OpenAI Proxy"
+    working = True
+    needs_auth = False
+    base_url = "http://localhost:8080/v1"
+    sort_models = False

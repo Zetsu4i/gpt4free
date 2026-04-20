@@ -29,7 +29,7 @@ try:
 except ImportError as e:
     debug.error("Search providers not loaded:", e)
 
-from .template import OpenaiTemplate, BackendApi
+from .template import OpenaiTemplate, OpenaiProxyTemplate, BackendApi
 from .qwen.QwenCode import QwenCode
 
 from .ApiAirforce          import ApiAirforce
