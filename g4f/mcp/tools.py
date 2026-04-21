@@ -95,7 +95,10 @@ class WebSearchTool(MCPTool):
         Returns:
             Dict[str, Any]: Search results or error message
         """
-        from ..Provider.search.CachedSearch import CachedSearch
+        try:
+            from ..Provider.search.CachedSearch import CachedSearch
+        except ImportError:
+            return {"error": "Search provider is not available in proxy-only build"}
         
         query = arguments.get("query", "")
         max_results = arguments.get("max_results", 5)

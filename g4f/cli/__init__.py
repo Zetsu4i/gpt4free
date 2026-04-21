@@ -21,10 +21,6 @@ from .client import get_parser, run_client_args
 from ..requests import BrowserConfig
 from ..gui.run import gui_parser, run_gui_args
 from ..config import DEFAULT_PORT, DEFAULT_TIMEOUT, DEFAULT_STREAM_TIMEOUT
-from ..Provider.needs_auth.Antigravity import cli_main as antigravity_cli_main
-from ..Provider.qwen.QwenCode import cli_main as qwen_cli_main
-from ..Provider.github.GithubCopilot import cli_main as github_cli_main
-from ..Provider.needs_auth.GeminiCLI import cli_main as gemini_cli_main
 from .. import Provider
 from .. import cookies
 
@@ -279,7 +275,7 @@ def run_mcp_args(args):
 
 def get_auth_parser(exit_on_error: bool = True) -> ArgumentParser:
     auth_parser = ArgumentParser(description="Manage authentication for providers", exit_on_error=exit_on_error)
-    auth_parser.add_argument("provider", choices=["gemini-cli", "antigravity", "qwencode", "github-copilot"], help="The provider to authenticate with")
+    auth_parser.add_argument("provider", choices=["openai-proxy"], help="The provider to authenticate with")
     auth_parser.add_argument("action", nargs="?", choices=["status", "login", "logout"], default="login", help="Action to perform (default: login)")
     return auth_parser
 
@@ -360,7 +356,7 @@ def main():
 def generate_autocomplete():
     # Top-level commands and their subcommands/options
     commands = ["api", "gui", "client", "mcp", "auth"]
-    auth_providers = ["gemini-cli", "antigravity", "qwencode", "github-copilot"]
+    auth_providers = ["openai-proxy"]
     auth_subcommands = ["status", "login"]
     # Options for each command
     api_args = ["--bind", "--port", "--debug", "--gui", "--no-gui", "--model", "--provider", "--media-provider", "--proxy", "--workers", "--disable-colors", "--ignore-cookie-files", "--cookies-dir", "--g4f-api-key", "--ignored-providers", "--cookie-browsers", "--reload", "--demo", "--timeout", "--stream-timeout", "--ssl-keyfile", "--ssl-certfile", "--log-config", "--access-log", "--no-access-log", "--browser-port", "--browser-host"]
@@ -376,7 +372,7 @@ _g4f_completions() {{
         COMPREPLY=($(compgen -W '{' '.join(commands + global_args)}' -- "$cur"))
     elif [[ $prev == auth && $cword -eq 2 ]]; then
         COMPREPLY=($(compgen -W '{' '.join(auth_providers)}' -- "$cur"))
-    elif [[ $prev =~ ^(gemini-cli|antigravity|qwencode|github-copilot)$ && $cword -eq 3 ]]; then
+    elif [[ $prev =~ ^(openai-proxy)$ && $cword -eq 3 ]]; then
         COMPREPLY=($(compgen -W '{' '.join(auth_subcommands)}' -- "$cur"))
     elif [[ $words[1] == api ]]; then
         local opts="{' '.join(api_args)}"
@@ -401,13 +397,8 @@ complete -F _g4f_completions g4f
 
 
 def handle_auth(provider, action, remaining):
-    if provider == "gemini-cli":
-        sys.exit(gemini_cli_main([action] + remaining))
-    elif provider == "antigravity":
-        sys.exit(antigravity_cli_main([action] + remaining))
-    elif provider == "qwencode":
-        sys.exit(qwen_cli_main([action] + remaining))
-    elif provider == "github-copilot":
-        sys.exit(github_cli_main([action] + remaining))
+    if provider == "openai-proxy":
+        print("OpenAI proxy providers use standard API keys; no browser auth flow is required.")
+        return
     else:
         print(f"Provider {provider} not supported yet.")

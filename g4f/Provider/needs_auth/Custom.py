@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ..template import OpenaiTemplate, OpenaiProxyTemplate
+from ..template import OpenaiProxyTemplate
 
-class Custom(OpenaiTemplate):
+class Custom(OpenaiProxyTemplate):
     label = "Custom Provider"
     working = True
     needs_auth = False

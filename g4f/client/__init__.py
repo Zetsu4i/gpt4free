@@ -21,7 +21,7 @@ from ..errors import NoMediaResponseError, ProviderNotFoundError
 from ..providers.retry_provider import IterListProvider
 from ..providers.asyncio import to_sync_generator
 from ..providers.any_provider import AnyProvider
-from ..Provider import OpenaiAccount, PollinationsImage, ProviderUtils
+from ..Provider import OpenaiProxy, ProviderUtils
 from ..Provider.template import OpenaiTemplate
 from ..tools.run_tools import async_iter_run_tools, iter_run_tools
 from ..cookies import get_cookies_dir
@@ -399,7 +399,7 @@ class Images:
         api_key: Optional[str] = None,
         **kwargs
     ) -> ImagesResponse:
-        provider_handler = await self.get_provider_handler(model, provider, PollinationsImage)
+        provider_handler = await self.get_provider_handler(model, provider, OpenaiProxy)
         provider_name = provider_handler.__name__ if hasattr(provider_handler, "__name__") else type(provider_handler).__name__
         if proxy is None:
             proxy = self.client.proxy
@@ -515,7 +515,7 @@ class Images:
         proxy: Optional[str] = None,
         **kwargs
     ) -> ImagesResponse:
-        provider_handler = await self.get_provider_handler(model, provider, OpenaiAccount)
+        provider_handler = await self.get_provider_handler(model, provider, OpenaiProxy)
         provider_name = provider_handler.__name__ if hasattr(provider_handler, "__name__") else type(provider_handler).__name__
         if proxy is None:
             proxy = self.client.proxy

@@ -10,7 +10,10 @@ except ImportError:
 
 from ..providers.response import Sources
 from ..errors import MissingRequirementsError
-from ..Provider.search.CachedSearch import CachedSearch
+try:
+    from ..Provider.search.CachedSearch import CachedSearch
+except ImportError:
+    CachedSearch = None
 from .. import debug
 
 DEFAULT_INSTRUCTIONS = """
@@ -35,6 +38,9 @@ async def do_search(
 
     if query is None:
         query = prompt.strip().splitlines()[0]
+
+    if CachedSearch is None:
+        return prompt, None
 
     search_results = await anext(CachedSearch.create_async_generator(
         "",
