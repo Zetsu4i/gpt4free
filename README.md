@@ -340,20 +340,18 @@ Notes:
 ---
 
 ## Providers & models (overview)
-- GPT4Free integrates many providers including (but not limited to) OpenAI-compatible endpoints, PerplexityLabs, Gemini, MetaAI, Pollinations (media), and local inference backends.
-- Model availability and behavior depend on provider capabilities. See the providers doc for current, supported provider/model lists: https://g4f.dev/docs/providers-and-models
+- This repository ships a minimal provider set: **EncryptedProxy** (OpenAI‑compatible, encrypted proxy) and **Chatai**.
+- EncryptedProxy forwards OpenAI‑compatible requests to a custom proxy URL (`G4F_ENCRYPTED_PROXY_URL`) and supports OpenRouter‑style model IDs.
+- Model availability and behavior depend on your proxy and Chatai capabilities.
 
 Provider requirements may include:
-- API keys or tokens (for authenticated providers)
-- Browser cookies / HAR files for providers scraped via browser automation
-- Chrome/Chromium or headless browser tooling
-- Local model binaries and runtime (for local inference)
+- A shared secret for the encrypted proxy (`G4F_ENCRYPTED_PROXY_KEY`)
+- Optional HTTP proxy configuration (`G4F_PROXY`)
 
 ---
 
 ## Local inference & media
-- GPT4Free supports local inference backends. See [docs/local.md](https://github.com/gpt4free/g4f.dev/blob/main/docs/local.md) for supported runtimes and hardware guidance.
-- Media generation (image, audio, video) is supported through providers (e.g., Pollinations). See [docs/media.md](https://github.com/gpt4free/g4f.dev/blob/main/docs/media.md) for formats, options, and sample usage.
+- This fork focuses on encrypted proxy routing and Chatai. Local inference and dedicated media providers are not bundled by default.
 
 ---
 

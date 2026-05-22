@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from g4f.errors import ModelNotFoundError
 from g4f.client import Client, AsyncClient, ChatCompletion, ChatCompletionChunk
 from g4f.client.service import get_model_and_provider
 from g4f.providers.types import BaseProvider
-from g4f.Provider.Copilot import Copilot
+from g4f.Provider.EncryptedProxy import EncryptedProxy
 from g4f.models import gpt_4o
 from .mocks import AsyncGeneratorProviderMock, ModelProviderMock, YieldProviderMock
 
@@ -109,11 +108,11 @@ class TestPassModel(unittest.TestCase):
         self.assertIsInstance(response, ChatCompletion)
         self.assertEqual("How are you?", response.choices[0].message.content)
 
-    def test_model_not_found(self):
-        def run_exception():
-            client = Client()
-            client.chat.completions.create(DEFAULT_MESSAGES, "Hello")
-        self.assertRaises(ModelNotFoundError, run_exception)
+    def test_unknown_model_defaults_to_proxy(self):
+        model, provider = get_model_and_provider("Hello", None, False)
+        self.assertIsInstance(model, str)
+        self.assertIsInstance(provider, (type, BaseProvider))
+        self.assertEqual(provider, EncryptedProxy)
 
     def test_best_provider(self):
         not_default_model = "gpt-4o"
@@ -130,11 +129,11 @@ class TestPassModel(unittest.TestCase):
         self.assertEqual(model, default_model)
 
     def test_provider_as_model(self):
-        provider_as_model = Copilot.__name__
+        provider_as_model = EncryptedProxy.__name__
         model, provider = get_model_and_provider(provider_as_model, None, False)
         self.assertIsInstance(model, str)
         self.assertIsInstance(provider, (type, BaseProvider))
-        self.assertEqual(model, Copilot.default_model)
+        self.assertEqual(model, EncryptedProxy.default_model)
 
     def test_get_model(self):
         model, provider = get_model_and_provider(gpt_4o.name, None, False)

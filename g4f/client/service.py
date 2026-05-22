@@ -87,7 +87,10 @@ def get_model_and_provider(model    : Union[Model, str],
                 provider = ProviderUtils.convert[model]
                 model = getattr(provider, "default_model", "")
             else:
-                raise ModelNotFoundError(f'Model not found: {model}')
+                proxy_provider = ProviderUtils.convert.get("EncryptedProxy")
+                if proxy_provider is None:
+                    raise ModelNotFoundError(f"Model not found: {model}")
+                provider = proxy_provider
         elif isinstance(model, Model):
             provider = model.best_provider
         else:
