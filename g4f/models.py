@@ -85,7 +85,7 @@ default_vision = VisionModel(
     best_provider=IterListProvider([EncryptedProxy], shuffle=False),
 )
 
-gpt_4o = Model(
+gpt_4o = VisionModel(
     name="gpt-4o",
     base_provider="OpenAI",
     best_provider=EncryptedProxy,

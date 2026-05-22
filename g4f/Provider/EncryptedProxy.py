@@ -85,9 +85,14 @@ class EncryptedProxy(AsyncGeneratorProvider, ProviderModelMixin, RaiseErrorMixin
     @lru_cache(maxsize=8)
     def _derive_keys(cls, secret: str) -> tuple[bytes, bytes]:
         secret_bytes = secret.encode("utf-8")
-        enc_key = hashlib.sha256(b"enc:" + secret_bytes).digest()
-        sig_key = hashlib.sha256(b"sig:" + secret_bytes).digest()
-        return enc_key, sig_key
+        key_material = hashlib.pbkdf2_hmac(
+            "sha256",
+            secret_bytes,
+            b"g4f-encrypted-proxy",
+            200_000,
+            dklen=64,
+        )
+        return key_material[:32], key_material[32:]
 
     @classmethod
     def _sign(cls, sig_key: bytes, data: bytes) -> str:
@@ -199,20 +204,7 @@ class EncryptedProxy(AsyncGeneratorProvider, ProviderModelMixin, RaiseErrorMixin
         impersonate: str = None,
         download_media: bool = True,
         encryption_key: str = None,
-        extra_parameters: list[str] = [
-            "tools",
-            "parallel_tool_calls",
-            "tool_choice",
-            "reasoning_effort",
-            "logit_bias",
-            "modalities",
-            "audio",
-            "stream_options",
-            "include_reasoning",
-            "response_format",
-            "max_completion_tokens",
-            "search_settings",
-        ],
+        extra_parameters: list[str] | None = None,
         extra_body: dict = None,
         **kwargs,
     ) -> AsyncResult:
@@ -222,6 +214,21 @@ class EncryptedProxy(AsyncGeneratorProvider, ProviderModelMixin, RaiseErrorMixin
 
         if stream or stream is None:
             kwargs.setdefault("stream_options", {"include_usage": True})
+        if extra_parameters is None:
+            extra_parameters = [
+                "tools",
+                "parallel_tool_calls",
+                "tool_choice",
+                "reasoning_effort",
+                "logit_bias",
+                "modalities",
+                "audio",
+                "stream_options",
+                "include_reasoning",
+                "response_format",
+                "max_completion_tokens",
+                "search_settings",
+            ]
         extra_parameters = {key: kwargs[key] for key in extra_parameters if key in kwargs}
         if extra_body is None:
             extra_body = {}

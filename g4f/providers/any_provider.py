@@ -9,6 +9,8 @@ from ..providers.config_provider import ConfigModelProvider, RouterConfig
 from ..providers.retry_provider import RotatedProvider
 from ..typing import AsyncResult, MediaListType, Messages
 
+FALLBACK_PROVIDER = "EncryptedProxy"
+
 
 class AnyModelProviderMixin(ProviderModelMixin):
     default_model = "default"
@@ -95,7 +97,8 @@ class AnyProvider(AsyncGeneratorProvider, AnyModelProviderMixin):
         elif model in Provider.__map__:
             provider = Provider.__map__[model]
             if provider.working and provider.get_parent() not in ignored:
-                model = getattr(provider, "default_model", model)
+                if not model or model == provider.__name__:
+                    model = getattr(provider, "default_model", model)
                 providers.append(provider)
         elif model and ":" in model:
             provider_name, submodel = model.split(":", maxsplit=1)
@@ -118,7 +121,7 @@ class AnyProvider(AsyncGeneratorProvider, AnyModelProviderMixin):
                         providers.append(provider)
 
         if not providers:
-            proxy_provider = Provider.__map__.get("EncryptedProxy")
+            proxy_provider = Provider.__map__.get(FALLBACK_PROVIDER)
             if proxy_provider:
                 providers = [proxy_provider]
 
